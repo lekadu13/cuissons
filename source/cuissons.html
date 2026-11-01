@@ -1,0 +1,985 @@
+<title>Cuissons Palle d'Oro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cuissons">
+<meta name="theme-color" content="#F28C00">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700&display=swap">
+<style>
+/* Mise en page : une colonne pensée pour le pouce, deux friteuses empilées, gros chiffres de cuisine. */
+:root {
+  --orange: #F28C00;
+  --orange-ink: #8A4B00;
+  --bg: #FBF7F2;
+  --surface: #FFFFFF;
+  --surface-2: #F3ECE3;
+  --fg: #1B140D;
+  --muted: #5E5248;
+  --line: #D9CDBF;
+  --ok: #1E7A34;
+  --alert: #C21F1F;
+  --cook: #B85F00;
+  --on-accent: #1B140D;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15100B; --surface: #211912; --surface-2: #2C2219; --fg: #FFF6EC; --muted: #CDBFAF;
+    --line: #4A3C2F; --ok: #4CC36A; --alert: #FF5A4E; --cook: #FFAA3B; --orange-ink: #FFB65C; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15100B; --surface: #211912; --surface-2: #2C2219; --fg: #FFF6EC; --muted: #CDBFAF;
+  --line: #4A3C2F; --ok: #4CC36A; --alert: #FF5A4E; --cook: #FFAA3B; --orange-ink: #FFB65C; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font-family: var(--body); font-size: 17px; line-height: 1.35;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 40px;
+  -webkit-tap-highlight-color: transparent;
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: .01em; }
+h1 { font-size: 34px; font-weight: 800; }
+h2 { font-size: 26px; font-weight: 800; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand { display: flex; flex-direction: column; }
+.brand small { font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--orange-ink); }
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 56px; padding: 10px 16px; border-radius: 14px; border: 2px solid var(--line);
+  background: var(--surface); font-weight: 700; font-size: 18px; width: 100%; text-align: center;
+}
+.btn.primary { background: var(--orange); border-color: var(--orange); color: var(--on-accent); font-family: var(--display); font-size: 30px; font-weight: 800; min-height: 72px; letter-spacing: .02em; }
+.btn.go { background: var(--ok); border-color: var(--ok); color: #fff; font-family: var(--display); font-size: 30px; font-weight: 800; min-height: 76px; }
+.btn.danger { color: var(--alert); border-color: var(--alert); background: transparent; }
+.btn.small { min-height: 44px; font-size: 16px; width: auto; }
+.btn.ghost { background: transparent; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; min-width: 0; }
+.back { align-self: flex-start; min-height: 44px; padding: 6px 14px 6px 8px; border: 0; background: transparent; font-weight: 700; color: var(--orange-ink); font-size: 18px; }
+
+/* Cartes friteuse */
+.fryer {
+  display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 10px; align-items: center;
+  width: 100%; text-align: left; padding: 14px; border-radius: 18px;
+  background: var(--surface); border: 3px solid var(--line);
+}
+.fryer.cooking { border-color: var(--orange); }
+.fryer.ready { border-color: var(--alert); border-width: 5px; }
+.fryer .head h2 { white-space: nowrap; }
+.fryer .head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.fryer .info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pill { font-family: var(--display); font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; padding: 4px 10px; border-radius: 999px; color: #fff; white-space: nowrap; }
+.pill.available { background: var(--ok); }
+.pill.cooking { background: var(--cook); color: var(--bg); }
+.pill.ready { background: var(--alert); }
+.pill.cancelled { background: var(--muted); color: var(--bg); }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(44px, 14vw, 64px); line-height: 1; font-variant-numeric: tabular-nums; }
+.big.muted { color: var(--muted); }
+.big.ready { color: var(--alert); font-size: clamp(40px, 12vw, 56px); }
+.huge { font-family: var(--display); font-weight: 800; font-size: clamp(72px, 26vw, 120px); line-height: .95; font-variant-numeric: tabular-nums; text-align: center; }
+.sub { font-weight: 700; }
+.muted { color: var(--muted); }
+
+/* Panier vu du dessus */
+.basket { border: 3px solid var(--fg); border-radius: 16px; padding: 8px; display: flex; flex-direction: column; gap: 8px; background: var(--surface-2); position: relative; }
+.basket .edge { font-family: var(--display); font-weight: 800; text-align: center; letter-spacing: .08em; font-size: 15px; }
+.basket .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.slot {
+  min-height: 74px; border-radius: 12px; border: 2px dashed var(--muted); background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; text-align: center;
+}
+.slot .name { font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1.05; overflow-wrap: anywhere; }
+.slot .pos { font-size: 12px; font-weight: 600; opacity: .85; }
+.slot.filled { border-style: solid; border-color: rgba(0,0,0,.25); }
+.slot.empty .name { color: var(--muted); }
+.basket.mini { border-width: 2px; padding: 4px; gap: 3px; border-radius: 10px; }
+.basket.mini .edge { font-size: 9px; letter-spacing: .04em; }
+.basket.mini .grid { gap: 3px; }
+.basket.mini .slot { min-height: 26px; border-radius: 6px; padding: 1px 2px; border-width: 1.5px; }
+.basket.mini .slot .name { font-size: 13px; }
+.basket.mini .slot .pos { display: none; }
+.lock { position: absolute; top: -12px; right: 10px; background: var(--fg); color: var(--bg); font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 999px; }
+.basket.correcting { border-color: var(--orange); border-style: dashed; }
+
+.panel { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.panel.warn { border-color: var(--alert); }
+.panel.note { background: var(--surface-2); border-color: transparent; }
+.panel h3 { font-size: 20px; }
+.readybox { background: var(--alert); color: #fff; border-radius: 16px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.readybox .t { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1; }
+.readybox .e { font-family: var(--display); font-weight: 700; font-size: 28px; font-variant-numeric: tabular-nums; }
+.duration { display: flex; flex-direction: column; gap: 10px; }
+.duration .val { font-family: var(--display); font-weight: 800; font-size: 54px; text-align: center; font-variant-numeric: tabular-nums; line-height: 1; }
+select, input[type="date"], input[type="text"], textarea {
+  font: inherit; font-size: 20px; font-weight: 700; min-height: 54px; padding: 8px 12px; border-radius: 12px;
+  border: 2px solid var(--line); background: var(--surface); color: var(--fg); width: 100%;
+}
+textarea { font-size: 13px; font-weight: 500; min-height: 120px; font-family: ui-monospace, Menlo, monospace; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: 15px; min-width: 0; }
+.siri { font-weight: 700; }
+.siri q { font-style: normal; color: var(--orange-ink); }
+.status { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; font-weight: 600; }
+.status .ok { color: var(--ok); }
+.status .ko { color: var(--alert); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.seg button { min-height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; }
+.seg button[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: var(--on-accent); }
+.hist { display: flex; flex-direction: column; gap: 8px; }
+.hrow { width: 100%; text-align: left; padding: 12px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 3px; }
+.hrow .l1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--display); font-size: 22px; font-weight: 800; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+.kv dt { color: var(--muted); font-weight: 600; }
+.kv dd { margin: 0; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.flv { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip { font-family: var(--display); font-weight: 800; font-size: 20px; padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,.2); }
+.toast { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 14px 16px; border-radius: 14px; font-weight: 700; z-index: 40; max-width: 560px; margin: 0 auto; }
+
+/* Fenêtres */
+.layer { position: fixed; inset: 0; z-index: 30; background: rgba(10,6,2,.55); display: flex; align-items: flex-end; justify-content: center; padding: 12px max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+.sheet { background: var(--bg); color: var(--fg); border-radius: 20px; padding: 16px; width: 100%; max-width: 560px; max-height: 88vh; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.picker { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.picker button { min-height: 72px; border-radius: 14px; font-family: var(--display); font-weight: 800; font-size: 26px; border: 2px solid rgba(0,0,0,.2); }
+.picker button.sel { outline: 4px solid var(--orange); outline-offset: 2px; }
+.picker button.vide { background: transparent; border: 2px dashed var(--muted); color: var(--fg); }
+.palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.palette button { aspect-ratio: 1; max-width: 100%; border-radius: 10px; border: 2px solid rgba(0,0,0,.2); }
+.palette button.sel { outline: 4px solid var(--orange); outline-offset: 2px; }
+.alarm { position: fixed; inset: 0; z-index: 50; background: var(--alert); color: #fff; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: calc(24px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); text-align: center; }
+.alarm .t { font-family: var(--display); font-weight: 800; font-size: clamp(44px, 13vw, 72px); line-height: 1; }
+.alarm .btn { background: #fff; color: #7A0F0F; border-color: #fff; font-size: 22px; min-height: 64px; }
+.alarm .btn.ghost { background: transparent; color: #fff; }
+@media (prefers-reduced-motion: no-preference) {
+  .alarm .t { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+}
+</style>
+
+<main id="app" aria-live="polite"></main>
+<div id="layer"></div>
+<div id="alarm" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Constantes ----------
+  var LS_KEY = "pdo-cuissons-v1";
+  var LS_PREV = "pdo-cuissons-v1-prev";
+  var LS_DIRTY = "pdo-cuissons-v1-dirty";
+  var MIN_S = 300, MAX_S = 1200;
+  var SLOTS = ["Arrière gauche", "Arrière droite", "Milieu gauche", "Milieu droite", "Avant gauche", "Avant droite"];
+  var ROWS = [[0, 1], [2, 3], [4, 5]];
+  var PALETTE = ["9B1C1C", "6A1B9A", "F4EEDC", "111111", "F5C400", "1565C0", "2E7D32", "00838F", "AD1457", "5D4037", "546E7A", "9E9D24"];
+  var DEFAULT_FLAVORS = [
+    { id: "f-ragu", name: "Ragù", color: "9B1C1C", archived: false },
+    { id: "f-chorizo", name: "Chorizo", color: "6A1B9A", archived: false },
+    { id: "f-bianca", name: "Bianca", color: "F4EEDC", archived: false },
+    { id: "f-nero", name: "Nero", color: "111111", archived: false },
+    { id: "f-raclette", name: "Raclette", color: "F5C400", archived: false }
+  ];
+
+  // ---------- Horloge (décalable pour les tests) ----------
+  var clockOffset = 0;
+  function now() { return Date.now() + clockOffset; }
+
+  // ---------- Outils ----------
+  function uid() {
+    try { if (crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function dayKey(ts) { var d = new Date(ts); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function clamp(s) { return Math.min(MAX_S, Math.max(MIN_S, Math.round(s))); }
+  function fmtCountdown(sec) { sec = Math.max(0, sec); return pad(Math.floor(sec / 60)) + ":" + pad(sec % 60); }
+  function fmtDuration(sec) { var m = Math.floor(sec / 60), s = sec % 60; return s ? m + " min " + s + " s" : m + " min"; }
+  function fmtElapsed(sec) {
+    if (sec < 60) return sec + " s";
+    var m = Math.floor(sec / 60), s = sec % 60;
+    if (m < 60) return m + " min " + pad(s) + " s";
+    return Math.floor(m / 60) + " h " + pad(m % 60) + " min";
+  }
+  function fmtTime(ts) { var d = new Date(ts); return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()); }
+  function fmtHM(ts) { var d = new Date(ts); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function fmtDay(ts) {
+    try { return new Date(ts).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); }
+    catch (e) { return dayKey(ts); }
+  }
+  function fmtShortDay(ts) { var d = new Date(ts); return pad(d.getDate()) + "/" + pad(d.getMonth() + 1); }
+  function textOn(hex) {
+    var v = parseInt(hex, 16), ch = [(v >> 16) & 255, (v >> 8) & 255, v & 255].map(function (c) { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
+    return (0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]) > 0.179 ? "#111" : "#fff";
+  }
+  function emptyFryer() { return { draft: [null, null, null, null, null, null], duration: 480, active: null, awaiting: false, last: null }; }
+  function initialState() {
+    return { schemaVersion: 1, savedAt: 0, flavors: JSON.parse(JSON.stringify(DEFAULT_FLAVORS)), fryers: [emptyFryer(), emptyFryer()], cycles: [] };
+  }
+  function isValid(s) {
+    return s && Array.isArray(s.flavors) && Array.isArray(s.cycles) && Array.isArray(s.fryers) && s.fryers.length === 2 &&
+      s.fryers.every(function (f) { return Array.isArray(f.draft) && f.draft.length === 6; }) &&
+      s.cycles.every(function (c) { return c && c.id && Array.isArray(c.slots) && c.slots.length === 6 && (c.fryer === 1 || c.fryer === 2); });
+  }
+
+  // ---------- Sauvegarde locale (immédiate, à chaque changement) ----------
+  var state = loadLocal() || initialState();
+  var localOK = true;
+  var dirty = loadDirty();
+
+  function loadLocal() {
+    var keys = [LS_KEY, LS_PREV];
+    for (var i = 0; i < keys.length; i++) {
+      try {
+        var raw = localStorage.getItem(keys[i]);
+        if (raw) { var s = JSON.parse(raw); if (isValid(s)) return s; }
+      } catch (e) {}
+    }
+    return null;
+  }
+  function loadDirty() {
+    try { var d = JSON.parse(localStorage.getItem(LS_DIRTY) || "null"); if (d && Array.isArray(d.cycles)) return d; } catch (e) {}
+    return { main: false, cycles: [] };
+  }
+  function save(changedCycleIds) {
+    state.savedAt = now();
+    try {
+      var cur = localStorage.getItem(LS_KEY);
+      if (cur) localStorage.setItem(LS_PREV, cur);
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      localOK = true;
+    } catch (e) { localOK = false; }
+    dirty.main = true;
+    (changedCycleIds || []).forEach(function (id) { if (dirty.cycles.indexOf(id) < 0) dirty.cycles.push(id); });
+    try { localStorage.setItem(LS_DIRTY, JSON.stringify(dirty)); } catch (e) {}
+    scheduleSync();
+  }
+
+  // ---------- Copie en ligne privée (protège contre l'effacement du navigateur) ----------
+  var db = null, userId = null, cloud = "pending", syncTimer = null, syncing = false;
+
+  function mainDoc() { return db.doc("data/users/" + userId + "/etat"); }
+  function cycleCol() { return mainDoc().collection("cycles"); }
+  function mainPayload() { return { schemaVersion: state.schemaVersion, savedAt: state.savedAt, flavors: state.flavors, fryers: state.fryers }; }
+
+  function scheduleSync(delay) {
+    if (!db || !userId) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(flush, delay == null ? 500 : delay);
+  }
+  function flush() {
+    if (!db || !userId || syncing) { if (syncing) scheduleSync(800); return; }
+    if (!dirty.main && !dirty.cycles.length) { cloud = "ok"; paintStatus(); return; }
+    syncing = true;
+    var ids = dirty.cycles.slice(), wasMain = dirty.main;
+    var jobs = ids.map(function (id) {
+      var c = findCycle(id);
+      return c ? cycleCol().doc(id).set({ json: JSON.stringify(c), updatedAt: c.updatedAt || 0 }) : Promise.resolve();
+    });
+    Promise.all(jobs).then(function () {
+      return wasMain ? mainDoc().set({ json: JSON.stringify(mainPayload()), savedAt: state.savedAt }) : null;
+    }).then(function () {
+      dirty.cycles = dirty.cycles.filter(function (id) { return ids.indexOf(id) < 0; });
+      if (wasMain) dirty.main = false;
+      try { localStorage.setItem(LS_DIRTY, JSON.stringify(dirty)); } catch (e) {}
+      cloud = (dirty.main || dirty.cycles.length) ? "pending" : "ok";
+      syncing = false; paintStatus();
+      if (cloud === "pending") scheduleSync(300);
+    }).catch(function () {
+      syncing = false; cloud = "offline"; paintStatus(); scheduleSync(15000);
+    });
+  }
+  function mergeFromCloud(mainSnap, cycleSnap) {
+    var changed = false;
+    var byId = {};
+    state.cycles.forEach(function (c) { byId[c.id] = c; });
+    var localIds = Object.keys(byId);
+    var seen = {};
+    cycleSnap.docs.forEach(function (d) {
+      var data = d.data(); if (!data || !data.json) return;
+      var c; try { c = JSON.parse(data.json); } catch (e) { return; }
+      if (!c || !c.id || !Array.isArray(c.slots) || c.slots.length !== 6) return;
+      seen[c.id] = true;
+      var mine = byId[c.id];
+      if (!mine) { state.cycles.push(c); changed = true; }
+      else if ((c.updatedAt || 0) > (mine.updatedAt || 0)) { state.cycles[state.cycles.indexOf(mine)] = c; changed = true; }
+      else if ((c.updatedAt || 0) < (mine.updatedAt || 0)) { markCycleDirty(c.id); }
+    });
+    localIds.forEach(function (id) { if (!seen[id]) markCycleDirty(id); });
+    if (mainSnap.exists) {
+      var m; try { m = JSON.parse(mainSnap.data().json); } catch (e) { m = null; }
+      if (m && Array.isArray(m.fryers) && m.fryers.length === 2 && (m.savedAt || 0) > (state.savedAt || 0)) {
+        state.flavors = m.flavors; state.fryers = m.fryers; state.savedAt = m.savedAt; changed = true;
+      } else if (!m || (m.savedAt || 0) < (state.savedAt || 0)) { dirty.main = true; }
+    } else { dirty.main = true; }
+    if (changed) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+      refreshFinished(true);
+      render();
+    }
+    flush();
+  }
+  function markCycleDirty(id) { if (dirty.cycles.indexOf(id) < 0) dirty.cycles.push(id); }
+
+  var cloudTries = 0;
+  function connectCloud() {
+    if (!window.claude || !window.claude.use) {
+      if (++cloudTries < 6) { setTimeout(connectCloud, 1500); return; }
+      cloud = "none"; paintStatus(); return;
+    }
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function (r) {
+      if (!r[0] || !r[1]) { cloud = "none"; paintStatus(); return null; }
+      return r[1].id().then(function (id) {
+        if (!id) { cloud = "none"; paintStatus(); return; }
+        db = r[0]; userId = id;
+        var timer = setTimeout(function () { cloud = "offline"; paintStatus(); }, 10000);
+        return Promise.all([mainDoc().get(), cycleCol().limit(1000).get()]).then(function (res) {
+          clearTimeout(timer); cloud = "ok"; mergeFromCloud(res[0], res[1]);
+        }).catch(function () { clearTimeout(timer); cloud = "offline"; paintStatus(); scheduleSync(15000); });
+      });
+    }).catch(function () { cloud = "none"; paintStatus(); });
+  }
+
+  // ---------- Modèle ----------
+  function fr(n) { return state.fryers[n - 1]; }
+  function findCycle(id) { if (!id) return null; for (var i = 0; i < state.cycles.length; i++) if (state.cycles[i].id === id) return state.cycles[i]; return null; }
+  function flavor(id) { if (!id) return null; for (var i = 0; i < state.flavors.length; i++) if (state.flavors[i].id === id) return state.flavors[i]; return null; }
+  function activeFlavors() { return state.flavors.filter(function (f) { return !f.archived; }); }
+  function snap(id) { var f = flavor(id); return f ? { flavorId: f.id, name: f.name, color: f.color } : null; }
+  function phase(n) {
+    var c = findCycle(fr(n).active);
+    if (!c || c.status === "annule") return { kind: "available" };
+    if (c.status === "termine" || now() >= c.plannedEnd) return { kind: "ready", cycle: c };
+    return { kind: "cooking", cycle: c };
+  }
+  function remaining(c) { return Math.max(0, Math.ceil((c.plannedEnd - now()) / 1000)); }
+  function sinceEnd(c) { return Math.max(0, Math.floor((now() - c.plannedEnd) / 1000)); }
+  function draftCount(n) { return fr(n).draft.filter(function (id) { return !!flavor(id); }).length; }
+
+  /** Passe à « terminé » les cycles dont la fin prévue est dépassée. Le cycle existe déjà
+      dans l'historique depuis son démarrage : on change son statut, sans doublon. */
+  function refreshFinished(silent) {
+    var t = now(), done = [];
+    state.cycles.forEach(function (c) {
+      if (c.status === "en_cours" && t >= c.plannedEnd) {
+        c.status = "termine"; c.finishedAt = c.plannedEnd; c.updatedAt = t; done.push(c);
+      }
+    });
+    if (done.length) save(done.map(function (c) { return c.id; }));
+    if (!silent) done.forEach(function (c) { if (t - c.plannedEnd < 120000) ring(c); });
+    return done;
+  }
+
+  function start(n) {
+    refreshFinished();
+    var f = fr(n);
+    if (f.active) return "deja";
+    var slots = f.draft.map(snap);
+    if (!slots.some(Boolean)) return "vide";
+    var t = now(), dur = clamp(f.duration), key = dayKey(t);
+    var num = state.cycles.filter(function (c) { return c.fryer === n && c.dayKey === key; })
+      .reduce(function (m, c) { return Math.max(m, c.number); }, 0) + 1;
+    var c = {
+      id: uid(), fryer: n, dayKey: key, number: num, startedAt: t, plannedEnd: t + dur * 1000, durationSeconds: dur,
+      slots: slots, corrections: [], status: "en_cours", finishedAt: null, removedAt: null, cancelledAt: null, updatedAt: t
+    };
+    state.cycles.push(c);
+    f.active = c.id; f.awaiting = false; f.last = c.id;
+    save([c.id]);
+    return c;
+  }
+  function setDraft(n, pos, id) { var f = fr(n); if (f.active) return; f.draft[pos] = id; f.awaiting = false; save(); }
+  function clearDraft(n) { var f = fr(n); if (f.active) return; f.draft = [null, null, null, null, null, null]; save(); }
+  function setDuration(n, s) { var f = fr(n); if (f.active) return; f.duration = clamp(s); save(); }
+  function correct(n, pos, id) {
+    var c = findCycle(fr(n).active);
+    if (!c || c.status === "annule") return;
+    var before = c.slots[pos], after = snap(id);
+    if ((before && before.flavorId) === (after && after.flavorId)) return;
+    c.slots[pos] = after;
+    c.corrections.push({ id: uid(), date: now(), position: pos, before: before, after: after });
+    c.updatedAt = now();
+    save([c.id]);
+  }
+  function cancelCycle(n) {
+    var p = phase(n); if (p.kind !== "cooking") return;
+    var c = p.cycle, f = fr(n);
+    c.status = "annule"; c.cancelledAt = now(); c.updatedAt = now();
+    f.active = null; f.draft = c.slots.map(function (s) { return s && flavor(s.flavorId) ? s.flavorId : null; }); f.duration = c.durationSeconds;
+    save([c.id]);
+  }
+  function confirmRemoved(n) {
+    refreshFinished();
+    var p = phase(n); if (p.kind !== "ready") return;
+    var c = p.cycle, f = fr(n);
+    if (c.status === "en_cours") { c.status = "termine"; c.finishedAt = c.plannedEnd; }
+    c.removedAt = now(); c.updatedAt = now();
+    f.active = null; f.awaiting = true; f.last = c.id;
+    save([c.id]);
+    stopRinging(c.id);
+  }
+  function newCycle(n) { var f = fr(n); if (f.active) return; f.draft = [null, null, null, null, null, null]; f.awaiting = false; save(); }
+  function redoSame(n) {
+    var f = fr(n); if (f.active) return;
+    var last = findCycle(f.last); if (!last) return;
+    f.draft = last.slots.map(function (s) { var fl = s && flavor(s.flavorId); return fl && !fl.archived ? fl.id : null; });
+    f.duration = last.durationSeconds; f.awaiting = false; save();
+  }
+  function previousCycle(c) {
+    var best = null;
+    state.cycles.forEach(function (x) { if (x.fryer === c.fryer && x.id !== c.id && x.startedAt < c.startedAt && (!best || x.startedAt > best.startedAt)) best = x; });
+    return best;
+  }
+  function history(fryerFilter, day) {
+    return state.cycles.filter(function (c) { return (!fryerFilter || c.fryer === fryerFilter) && (!day || c.dayKey === day); })
+      .sort(function (a, b) { return b.startedAt - a.startedAt; });
+  }
+  function addFlavor(name, color) { name = (name || "").trim(); if (!name) return null; var f = { id: uid(), name: name, color: color, archived: false }; state.flavors.push(f); save(); return f; }
+  function updateFlavor(id, name, color) { name = (name || "").trim(); var f = flavor(id); if (!f || !name) return; f.name = name; f.color = color; save(); }
+  function setArchived(id, a) { var f = flavor(id); if (!f) return; f.archived = a; save(); }
+
+  function exportJSON() { return JSON.stringify({ app: "PalleDoroCuissons", formatVersion: 1, exportedAt: new Date(now()).toISOString(), data: state }, null, 2); }
+  function restoreJSON(text) {
+    var o; try { o = JSON.parse(text); } catch (e) { throw new Error("Ce texte n'est pas une sauvegarde valide."); }
+    var s = o && o.data ? o.data : o;
+    if (!isValid(s)) throw new Error("Ce fichier n'est pas une sauvegarde valide de l'application.");
+    state = s;
+    save(state.cycles.map(function (c) { return c.id; }));
+    refreshFinished(true);
+  }
+
+  // ---------- Alerte dans l'application ----------
+  var audioCtx = null, ringing = {}, ringTimer = null, wakeLock = null, wakeState = "off";
+
+  function unlockAudio() {
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+    try {
+      if (!audioCtx) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) audioCtx = new AC(); }
+      if (audioCtx && audioCtx.state !== "running") audioCtx.resume();
+      if (audioCtx) { var b = audioCtx.createBuffer(1, 1, 22050), s = audioCtx.createBufferSource(); s.buffer = b; s.connect(audioCtx.destination); s.start(0); }
+    } catch (e) {}
+    paintStatus();
+  }
+  function beep(freq, at, len) {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "square"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.6, at + 0.02);
+    g.gain.setValueAtTime(0.6, at + len - 0.03); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+    o.connect(g); g.connect(audioCtx.destination); o.start(at); o.stop(at + len + 0.02);
+  }
+  function playPattern() {
+    if (!audioCtx) return;
+    try { if (audioCtx.state !== "running") audioCtx.resume(); var t = audioCtx.currentTime + 0.05; beep(988, t, 0.18); beep(988, t + 0.28, 0.18); beep(1319, t + 0.56, 0.32); } catch (e) {}
+  }
+  function ring(c) {
+    ringing[c.id] = true;
+    if (!ringTimer) { playPattern(); ringTimer = setInterval(playPattern, 1400); }
+    try { if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch (e) {}
+    paintAlarm();
+  }
+  function stopRinging(id) {
+    if (id) delete ringing[id]; else ringing = {};
+    if (!Object.keys(ringing).length && ringTimer) { clearInterval(ringTimer); ringTimer = null; }
+    paintAlarm();
+  }
+  function testAlarm() {
+    unlockAudio();
+    playPattern(); setTimeout(playPattern, 1400);
+    toast("Son de test joué. Si tu n'entends rien, monte le volume et vérifie le mode silencieux.");
+  }
+  function needWake() { return [1, 2].some(function (n) { return phase(n).kind !== "available"; }); }
+  function updateWakeLock() {
+    var want = needWake();
+    if (want && !wakeLock && document.visibilityState === "visible" && navigator.wakeLock) {
+      navigator.wakeLock.request("screen").then(function (l) {
+        wakeLock = l; wakeState = "on"; paintStatus();
+        l.addEventListener("release", function () { wakeLock = null; wakeState = "off"; paintStatus(); });
+      }).catch(function () { wakeState = "refused"; paintStatus(); });
+    } else if (!want && wakeLock) {
+      try { wakeLock.release(); } catch (e) {} wakeLock = null; wakeState = "off";
+    }
+    if (!navigator.wakeLock) wakeState = "unsupported";
+  }
+
+  // ---------- Navigation ----------
+  var view = { name: "home" };
+  var ui = { correcting: {}, histFryer: 0, histAll: false, histDay: dayKey(Date.now()), exportText: "" };
+  function go(v) { view = v; ui.correcting = {}; render(); window.scrollTo(0, 0); }
+
+  // ---------- Rendu ----------
+  var app = document.getElementById("app");
+
+  function slotsFromDraft(n) { return fr(n).draft.map(function (id) { var f = flavor(id); return f ? { name: f.name, color: f.color } : null; }); }
+  function slotsFromCycle(c) { return c.slots.map(function (s) { return s ? { name: s.name, color: s.color } : null; }); }
+  function previewSlots(n) {
+    var p = phase(n);
+    if (p.kind !== "available") return slotsFromCycle(p.cycle);
+    if (fr(n).awaiting && findCycle(fr(n).last)) return slotsFromCycle(findCycle(fr(n).last));
+    return slotsFromDraft(n);
+  }
+  function basketHTML(slots, opts) {
+    opts = opts || {};
+    var h = '<div class="basket' + (opts.mini ? " mini" : "") + (opts.correcting ? " correcting" : "") + '">';
+    if (opts.locked && !opts.mini) h += '<span class="lock">🔒 Verrouillé</span>';
+    h += '<div class="edge">ARRIÈRE</div>';
+    ROWS.forEach(function (row) {
+      h += '<div class="grid">';
+      row.forEach(function (pos) {
+        var s = slots[pos];
+        var style = s ? ' style="background:#' + esc(s.color) + ";color:" + textOn(s.color) + '"' : "";
+        var tag = opts.action ? "button" : "div";
+        var act = opts.action ? ' data-act="' + opts.action + '" data-pos="' + pos + '" type="button"' : "";
+        h += "<" + tag + ' class="slot ' + (s ? "filled" : "empty") + '"' + style + act + ' aria-label="' + SLOTS[pos] + " : " + esc(s ? s.name : "vide") + '">' +
+          '<span class="name">' + esc(s ? s.name : "Vide") + "</span>" + '<span class="pos">' + SLOTS[pos] + "</span></" + tag + ">";
+      });
+      h += "</div>";
+    });
+    h += '<div class="edge">DEVANT — CÔTÉ UTILISATEUR</div></div>';
+    return h;
+  }
+  function statusLine() {
+    var aud = audioCtx && audioCtx.state === "running";
+    var w = wakeState === "on" ? '<span class="ok">✓ Écran maintenu allumé</span>' :
+      wakeState === "refused" || wakeState === "unsupported" ? '<span class="ko">✗ Écran : verrouillage auto non bloqué</span>' :
+      '<span class="muted">Écran allumé pendant les cuissons</span>';
+    var c = cloud === "ok" ? '<span class="ok">✓ Copie en ligne à jour</span>' :
+      cloud === "pending" ? '<span class="muted">Copie en ligne en cours…</span>' :
+      cloud === "offline" ? '<span class="ko">Copie en ligne en attente (hors ligne)</span>' :
+      cloud === "none" ? exportReminder() : '<span class="muted">Copie en ligne…</span>';
+    return '<div class="status" id="status">' +
+      (localOK ? '<span class="ok">✓ Enregistré sur cet iPhone</span>' : '<span class="ko">✗ Enregistrement local impossible : exporte une sauvegarde</span>') +
+      c + (aud ? '<span class="ok">✓ Son activé</span>' : '<button class="btn small ghost" data-act="unlock" type="button">🔈 Activer le son</button>') + w + "</div>";
+  }
+  function paintStatus() { var el = document.getElementById("status"); if (el) el.outerHTML = statusLine(); }
+
+  function render() {
+    var h = "";
+    if (view.name === "home") h = homeHTML();
+    else if (view.name === "fryer") h = fryerHTML(view.n);
+    else if (view.name === "history") h = historyHTML();
+    else if (view.name === "cycle") h = cycleHTML(view.id);
+    else if (view.name === "settings") h = settingsHTML();
+    app.innerHTML = h;
+    updateWakeLock();
+    paintAlarm();
+  }
+
+  function pillHTML(kind) {
+    return kind === "available" ? '<span class="pill available">Disponible</span>' :
+      kind === "cooking" ? '<span class="pill cooking">Cuisson en cours</span>' : '<span class="pill ready">À retirer</span>';
+  }
+
+  function homeHTML() {
+    var h = '<div class="top"><div class="brand"><small>Palle d\'Oro</small><h1>Cuissons</h1></div>' +
+      '<button class="btn small" data-act="settings" type="button" aria-label="Réglages, saveurs et sauvegarde">⚙︎ Réglages</button></div>';
+    h += '<div class="panel warn"><strong>Garde cette page ouverte et l\'iPhone déverrouillé.</strong>' +
+      '<span>Une page web ne peut pas sonner si l\'iPhone est verrouillé ou si tu changes d\'application. Pour chaque cuisson, lance aussi le minuteur Siri indiqué.</span></div>';
+    h += statusLine();
+    [1, 2].forEach(function (n) {
+      var p = phase(n), f = fr(n), info;
+      if (p.kind === "available") {
+        info = '<span class="big muted">' + fmtCountdown(f.duration) + '</span><span class="sub">' + (f.awaiting ? "Panier retiré" : "Prête à préparer") + "</span>";
+      } else if (p.kind === "cooking") {
+        info = '<span class="big" data-remaining="' + p.cycle.id + '">' + fmtCountdown(remaining(p.cycle)) + '</span><span class="sub">Cycle ' + p.cycle.number + " · fin " + fmtHM(p.cycle.plannedEnd) + "</span>";
+      } else {
+        info = '<span class="big ready">PRÊTE</span><span class="sub">Cycle ' + p.cycle.number + ' · depuis <span data-elapsed="' + p.cycle.id + '">' + fmtElapsed(sinceEnd(p.cycle)) + "</span></span>";
+      }
+      h += '<button class="fryer ' + p.kind + '" data-act="open" data-n="' + n + '" type="button">' +
+        '<div class="head"><h2>Friteuse ' + n + "</h2>" + pillHTML(p.kind) + "</div>" +
+        '<div class="info">' + info + "</div>" + basketHTML(previewSlots(n), { mini: true }) + "</button>";
+    });
+    h += '<button class="btn" data-act="history" type="button">🕘 Historique</button>';
+    h += '<button class="btn ghost" data-act="test" type="button">🔔 Tester l\'alarme</button>';
+    return h;
+  }
+
+  function siriHTML(n, c) {
+    var sec = remaining(c), m = Math.floor(sec / 60), s = sec % 60;
+    var phrase = "Minuteur Friteuse " + n + ", " + m + " minutes" + (s ? " " + s + " secondes" : "");
+    return '<div class="panel note siri">Sécurité téléphone verrouillé : dis <q>Dis Siri, ' + esc(phrase) + '</q>' +
+      '<span class="muted" style="font-weight:500">Les minuteurs de l\'app Horloge sonnent même iPhone verrouillé.</span></div>';
+  }
+
+  function fryerHTML(n) {
+    var p = phase(n), f = fr(n);
+    var h = '<button class="back" data-act="home" type="button">‹ Accueil</button>';
+    h += '<div class="top"><h1>Friteuse ' + n + "</h1>" + pillHTML(p.kind) + "</div>";
+    if (p.kind === "available" && f.awaiting) {
+      var last = findCycle(f.last);
+      if (last) h += '<h2>Cycle ' + last.number + " retiré à " + fmtTime(last.removedAt || now()) + "</h2>" + basketHTML(slotsFromCycle(last));
+      h += '<button class="btn primary" data-act="new" data-n="' + n + '" type="button">＋ Nouveau cycle</button>';
+      h += '<button class="btn" data-act="redo" data-n="' + n + '" type="button">↻ Refaire le même panier</button>';
+      h += '<p class="muted">Rien ne démarre tout seul : tu vérifies le panier, puis tu appuies sur « Démarrer ».</p>';
+    } else if (p.kind === "available") {
+      var count = draftCount(n), m = Math.floor(f.duration / 60), s = f.duration % 60, mo = "", so = "";
+      for (var i = 5; i <= 20; i++) mo += '<option value="' + i + '"' + (i === m ? " selected" : "") + ">" + i + " min</option>";
+      for (var j = 0; j < 60; j++) so += '<option value="' + j + '"' + (j === s ? " selected" : "") + ">" + pad(j) + " s</option>";
+      h += "<h2>Préparer le panier</h2>" + basketHTML(slotsFromDraft(n), { action: "pick" });
+      h += '<div class="row" style="align-items:center"><strong>' + count + " arancini sur 6</strong>" +
+        '<button class="btn small" data-act="clear" data-n="' + n + '" type="button"' + (count ? "" : " disabled") + ">Tout vider</button></div>";
+      h += '<div class="panel duration"><div class="val">' + fmtCountdown(f.duration) + "</div>" +
+        '<div class="row"><label class="f" for="min-' + n + '">Minutes<select id="min-' + n + '" data-ch="min" data-n="' + n + '">' + mo + "</select></label>" +
+        '<label class="f" for="sec-' + n + '">Secondes<select id="sec-' + n + '" data-ch="sec" data-n="' + n + '"' + (m >= 20 ? " disabled" : "") + ">" + so + "</select></label></div>" +
+        '<div class="row"><button class="btn" data-act="dur" data-d="-30" data-n="' + n + '" type="button">− 30 s</button>' +
+        '<button class="btn" data-act="dur" data-d="30" data-n="' + n + '" type="button">+ 30 s</button></div>' +
+        '<span class="muted">Entre 5 et 20 minutes</span></div>';
+      h += '<div class="panel note"><strong>Vérification : ' + count + " arancini · " + fmtDuration(f.duration) + "</strong>" +
+        (count ? "" : '<span style="color:var(--alert);font-weight:700">Ajoute au moins un arancino pour démarrer.</span>') + "</div>";
+      h += '<button class="btn primary" data-act="start" data-n="' + n + '" type="button"' + (count ? "" : " disabled") + ">▶ Démarrer</button>";
+    } else if (p.kind === "cooking") {
+      var c = p.cycle;
+      h += '<h2 style="text-align:center">Cycle ' + c.number + " · cuisson en cours</h2>";
+      h += '<div class="huge" data-remaining="' + c.id + '">' + fmtCountdown(remaining(c)) + "</div>";
+      h += '<p style="text-align:center;margin:0" class="sub">Démarré à ' + fmtTime(c.startedAt) + " · fin prévue " + fmtTime(c.plannedEnd) + "</p>";
+      h += siriHTML(n, c);
+      h += correctableHTML(n, c);
+      h += prevLinkHTML(c);
+      h += '<button class="btn danger" data-act="cancel" data-n="' + n + '" type="button">Annuler la cuisson</button>';
+    } else {
+      var r = p.cycle;
+      h += '<div class="readybox"><span class="t">FRITEUSE ' + n + ' PRÊTE</span><span>Cycle ' + r.number + " · terminé à " + fmtTime(r.plannedEnd) + "</span>" +
+        '<span class="e">Prête depuis <span data-elapsed="' + r.id + '">' + fmtElapsed(sinceEnd(r)) + "</span></span></div>";
+      h += '<p class="muted" style="margin:0;text-align:center">Arrêter la sonnerie ne libère pas la friteuse : confirme le retrait du panier.</p>';
+      h += correctableHTML(n, r);
+      h += '<button class="btn go" data-act="removed" data-n="' + n + '" type="button">✓ Panier retiré</button>';
+    }
+    return h;
+  }
+
+  function correctableHTML(n, c) {
+    var on = !!ui.correcting[n], h = "";
+    if (on) h += '<strong style="color:var(--orange-ink)">Mode correction : touche un emplacement</strong>';
+    h += basketHTML(slotsFromCycle(c), { locked: !on, correcting: on, action: on ? "fix" : null });
+    if (on) h += '<button class="btn" data-act="fixdone" data-n="' + n + '" type="button">Terminer la correction</button>';
+    else h += '<button class="btn" data-act="fixask" data-n="' + n + '" type="button">✎ Corriger la disposition</button>';
+    if (c.corrections.length) h += '<span class="muted">' + c.corrections.length + " correction(s) enregistrée(s)</span>";
+    return h;
+  }
+  function prevLinkHTML(c) {
+    var p = previousCycle(c);
+    return p ? '<button class="btn" data-act="cycle" data-id="' + p.id + '" type="button">↶ Cycle précédent (n° ' + p.number + ", " + fmtShortDay(p.startedAt) + ")</button>" : "";
+  }
+
+  function statusPill(c) {
+    if (c.status === "en_cours") return '<span class="pill cooking">En cours</span>';
+    if (c.status === "annule") return '<span class="pill cancelled">Annulé</span>';
+    return c.removedAt ? '<span class="pill available">Terminé</span>' : '<span class="pill ready">Terminé · à retirer</span>';
+  }
+  function summary(c) {
+    var counts = {}, order = [];
+    c.slots.forEach(function (s) { if (!s) return; if (!counts[s.name]) { counts[s.name] = 0; order.push(s.name); } counts[s.name]++; });
+    var parts = order.map(function (k) { return counts[k] + " " + k; });
+    var e = c.slots.filter(function (s) { return !s; }).length;
+    if (e) parts.push(e + " vide" + (e > 1 ? "s" : ""));
+    return parts.join(", ");
+  }
+
+  function historyHTML() {
+    var list = history(ui.histFryer, ui.histAll ? null : ui.histDay);
+    var h = '<button class="back" data-act="home" type="button">‹ Accueil</button><h1>Historique</h1>';
+    h += '<div class="seg" role="group" aria-label="Friteuse">' + [[0, "Toutes"], [1, "Friteuse 1"], [2, "Friteuse 2"]].map(function (o) {
+      return '<button type="button" data-act="hf" data-v="' + o[0] + '" aria-pressed="' + (ui.histFryer === o[0]) + '">' + o[1] + "</button>";
+    }).join("") + "</div>";
+    h += '<div class="row" style="align-items:end"><label class="f" for="hday">Date<input type="date" id="hday" data-ch="hday" value="' + ui.histDay + '"' + (ui.histAll ? " disabled" : "") + "></label>" +
+      '<button class="btn" data-act="hall" type="button" aria-pressed="' + ui.histAll + '">' + (ui.histAll ? "✓ Toutes les dates" : "Toutes les dates") + "</button></div>";
+    h += '<button class="btn small ghost" data-act="htoday" type="button">Aujourd\'hui</button>';
+    h += '<p class="muted" style="margin:0">' + (list.length ? list.length + " cycle(s), plus récents en premier" : "Aucun cycle pour ce filtre") + "</p>";
+    h += '<div class="hist">' + list.map(function (c) {
+      return '<button class="hrow" data-act="cycle" data-id="' + c.id + '" type="button"><span class="l1"><span>Friteuse ' + c.fryer + " · Cycle " + c.number + "</span>" + statusPill(c) + "</span>" +
+        "<span>" + fmtShortDay(c.startedAt) + " · " + fmtHM(c.startedAt) + " → " + fmtHM(c.plannedEnd) + " · " + fmtDuration(c.durationSeconds) + "</span>" +
+        '<span class="muted">' + esc(summary(c)) + "</span></button>";
+    }).join("") + "</div>";
+    return h;
+  }
+
+  function cycleHTML(id) {
+    var c = findCycle(id);
+    var h = '<button class="back" data-act="back" type="button">‹ Retour</button>';
+    if (!c) return h + "<p>Cycle introuvable.</p>";
+    h += "<h1>Friteuse " + c.fryer + " · Cycle " + c.number + "</h1>" + statusPill(c);
+    h += basketHTML(slotsFromCycle(c));
+    var kv = [["Date", fmtDay(c.startedAt)], ["Friteuse", "Friteuse " + c.fryer], ["Numéro", "Cycle " + c.number + " du " + fmtShortDay(c.startedAt)],
+      ["Démarrage", fmtTime(c.startedAt)], ["Fin prévue", fmtTime(c.plannedEnd)], ["Durée choisie", fmtDuration(c.durationSeconds)],
+      ["Statut", c.status === "en_cours" ? "En cours" : c.status === "annule" ? "Annulé" : "Terminé"]];
+    if (c.removedAt) kv.push(["Panier retiré à", fmtTime(c.removedAt)]);
+    if (c.cancelledAt) kv.push(["Annulé à", fmtTime(c.cancelledAt)]);
+    kv.push(["Identifiant", c.id.slice(0, 8)]);
+    h += '<div class="panel"><dl class="kv">' + kv.map(function (p) { return "<dt>" + p[0] + "</dt><dd>" + esc(p[1]) + "</dd>"; }).join("") + "</dl></div>";
+    h += '<div class="panel"><h3>Positions</h3><dl class="kv">' + SLOTS.map(function (l, i) { return "<dt>" + l + "</dt><dd>" + esc(c.slots[i] ? c.slots[i].name : "Vide") + "</dd>"; }).join("") + "</dl></div>";
+    h += '<div class="panel"><h3>Corrections</h3>' + (c.corrections.length ? c.corrections.map(function (x) {
+      return "<div>" + fmtTime(x.date) + " · " + SLOTS[x.position] + " : " + esc(x.before ? x.before.name : "Vide") + " → " + esc(x.after ? x.after.name : "Vide") + "</div>";
+    }).join("") : '<span class="muted">Aucune correction</span>') + "</div>";
+    return h;
+  }
+
+  function settingsHTML() {
+    var h = '<button class="back" data-act="home" type="button">‹ Accueil</button><h1>Réglages</h1>';
+    h += '<div class="panel"><h3>Alarme</h3><span>La page sonne à la fin de chaque minuteur tant qu\'elle reste ouverte à l\'écran. Elle garde l\'écran allumé pendant les cuissons.</span>' +
+      "<span><strong>Elle ne peut pas sonner iPhone verrouillé ou en arrière-plan.</strong> Pour ça, lance en plus un minuteur Siri à chaque cuisson : la phrase exacte s'affiche sur l'écran de la friteuse.</span>" +
+      '<span class="muted">Le son de la page peut être coupé par le mode silencieux. Les minuteurs Horloge, eux, sonnent quand même.</span>' +
+      '<button class="btn" data-act="test" type="button">🔔 Tester l\'alarme</button></div>';
+    h += '<div class="panel"><h3>Gérer les saveurs</h3><span class="muted">Les cycles passés gardent le nom et la couleur utilisés pendant leur cuisson.</span>';
+    activeFlavors().forEach(function (f) {
+      h += '<div class="flv"><span class="chip" style="background:#' + esc(f.color) + ";color:" + textOn(f.color) + '">' + esc(f.name) + "</span>" +
+        '<button class="btn small" data-act="fedit" data-id="' + f.id + '" type="button">Modifier</button>' +
+        '<button class="btn small" data-act="farch" data-id="' + f.id + '" type="button">Archiver</button></div>';
+    });
+    h += '<button class="btn" data-act="fadd" type="button">＋ Ajouter une saveur</button>';
+    var arch = state.flavors.filter(function (f) { return f.archived; });
+    if (arch.length) {
+      h += "<strong>Archivées</strong>";
+      arch.forEach(function (f) {
+        h += '<div class="flv"><span class="chip" style="background:#' + esc(f.color) + ";color:" + textOn(f.color) + '">' + esc(f.name) + "</span>" +
+          '<button class="btn small" data-act="funarch" data-id="' + f.id + '" type="button">Restaurer</button></div>';
+      });
+    }
+    h += "</div>";
+    h += '<div class="panel"><h3>Sauvegarde</h3><span>Tout est enregistré sur cet iPhone à chaque changement' + (cloud === "none" ? "" : ", avec une copie en ligne privée") + '. Exporte un fichier de temps en temps (dans Fichiers ou iCloud Drive) pour garder ton historique en cas de changement de téléphone.</span>' +
+      '<button class="btn" data-act="export" type="button">⬆︎ Exporter une sauvegarde</button>' +
+      (ui.exportText ? '<label class="f" for="exp">Copie de secours (sélectionne et copie ce texte)<textarea id="exp" readonly>' + esc(ui.exportText) + "</textarea></label>" +
+        '<button class="btn small" data-act="copyexp" type="button">Copier le texte</button>' : "") +
+      '<label class="f" for="impfile">Restaurer depuis un fichier<input type="file" id="impfile" accept="application/json,.json" data-ch="impfile"></label>' +
+      '<label class="f" for="imptext">…ou colle le texte d\'une sauvegarde<textarea id="imptext" placeholder="Colle ici le contenu du fichier de sauvegarde"></textarea></label>' +
+      '<button class="btn" data-act="imptext" type="button">⬇︎ Restaurer le texte collé</button></div>';
+    h += statusLine();
+    return h;
+  }
+
+  // ---------- Fenêtres ----------
+  var layer = document.getElementById("layer");
+  function closeLayer() { layer.innerHTML = ""; }
+  function confirmBox(title, text, okLabel, onOk, danger) {
+    layer.innerHTML = '<div class="layer" data-act="lclose"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><h2>' + esc(title) + "</h2>" +
+      (text ? "<p style=\"margin:0\">" + esc(text) + "</p>" : "") +
+      '<button class="btn ' + (danger ? "danger" : "primary") + '" id="lok" type="button">' + esc(okLabel) + "</button>" +
+      '<button class="btn" data-act="lclose" type="button">Retour</button></div></div>';
+    document.getElementById("lok").onclick = function () { guardUntil = performance.now() + 700; closeLayer(); onOk(); };
+  }
+  function pickFlavor(title, current, onPick) {
+    var h = '<div class="layer" data-act="lclose"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><h2>' + esc(title) + '</h2><div class="picker">';
+    activeFlavors().forEach(function (f) {
+      h += '<button type="button" data-fid="' + f.id + '" class="' + (f.id === current ? "sel" : "") + '" style="background:#' + esc(f.color) + ";color:" + textOn(f.color) + '">' + esc(f.name) + "</button>";
+    });
+    h += '<button type="button" data-fid="" class="vide' + (!current ? " sel" : "") + '">Vide</button></div>' +
+      '<button class="btn" data-act="lclose" type="button">Fermer</button></div></div>';
+    layer.innerHTML = h;
+    Array.prototype.forEach.call(layer.querySelectorAll("[data-fid]"), function (b) {
+      b.onclick = function () { closeLayer(); onPick(b.getAttribute("data-fid") || null); };
+    });
+  }
+  function flavorEditor(f) {
+    var color = f ? f.color : PALETTE[5];
+    function paint() {
+      layer.innerHTML = '<div class="layer"><div class="sheet" role="dialog" aria-modal="true"><h2>' + (f ? "Modifier la saveur" : "Nouvelle saveur") + "</h2>" +
+        '<label class="f" for="fname">Nom<input type="text" id="fname" maxlength="24" value="' + esc(f ? f.name : (layer._name || "")) + '" autocomplete="off"></label>' +
+        '<strong>Couleur</strong><div class="palette">' + PALETTE.map(function (p) {
+          return '<button type="button" data-col="' + p + '" class="' + (p === color ? "sel" : "") + '" style="background:#' + p + '" aria-label="Couleur ' + p + '"></button>';
+        }).join("") + "</div>" +
+        '<button class="btn primary" id="fsave" type="button">Enregistrer</button><button class="btn" data-act="lclose" type="button">Annuler</button></div></div>';
+      Array.prototype.forEach.call(layer.querySelectorAll("[data-col]"), function (b) {
+        b.onclick = function () { layer._name = document.getElementById("fname").value; if (f) f = Object.assign({}, f, { name: layer._name }); color = b.getAttribute("data-col"); paint(); };
+      });
+      document.getElementById("fsave").onclick = function () {
+        var name = document.getElementById("fname").value.trim();
+        if (!name) { toast("Donne un nom à la saveur."); return; }
+        if (f) updateFlavor(f.id, name, color); else addFlavor(name, color);
+        layer._name = ""; closeLayer(); render();
+      };
+    }
+    layer._name = "";
+    paint();
+  }
+
+  // ---------- Écran d'alarme ----------
+  var alarmEl = document.getElementById("alarm");
+  function paintAlarm() {
+    var ids = Object.keys(ringing).filter(function (id) { var c = findCycle(id); return c && !c.removedAt; });
+    if (!ids.length) { alarmEl.hidden = true; alarmEl.innerHTML = ""; return; }
+    var cs = ids.map(findCycle).sort(function (a, b) { return a.fryer - b.fryer; });
+    alarmEl.innerHTML = cs.map(function (c) { return '<div class="t">FRITEUSE ' + c.fryer + " PRÊTE</div><div>Cycle " + c.number + " · terminé à " + fmtTime(c.plannedEnd) + "</div>"; }).join("") +
+      '<button class="btn" data-act="silence" type="button">🔕 Arrêter la sonnerie</button>' +
+      cs.map(function (c) { return '<button class="btn ghost" data-act="silenceopen" data-n="' + c.fryer + '" type="button">Voir la Friteuse ' + c.fryer + "</button>"; }).join("") +
+      '<span>Arrêter la sonnerie ne retire pas le panier.</span>';
+    alarmEl.hidden = false;
+  }
+
+  var toastTimer = null, toastEl = document.getElementById("toast");
+  function toast(msg) { toastEl.textContent = msg; toastEl.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.hidden = true; }, 4500); }
+
+  // ---------- Événements ----------
+  var guardUntil = 0;
+  var GUARDED = ["start", "open", "new", "redo", "home", "history", "cycle", "back", "settings", "fixdone"];
+  document.addEventListener("pointerdown", function () { if (!audioCtx || audioCtx.state !== "running") unlockAudio(); }, true);
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]"); if (!el || !el.isConnected) return;
+    var act = el.getAttribute("data-act"), n = +el.getAttribute("data-n") || (view.n || 0);
+    // Anti double appui : après un changement d'écran, le second appui ne touche pas le nouveau bouton.
+    if (performance.now() < guardUntil && act !== "silence" && act !== "silenceopen") { e.preventDefault(); return; }
+    if (GUARDED.indexOf(act) >= 0) guardUntil = performance.now() + 700;
+    if (act === "lclose") { if (e.target === el || el.tagName === "BUTTON") closeLayer(); return; }
+    switch (act) {
+      case "home": go({ name: "home" }); break;
+      case "settings": ui.exportText = ""; go({ name: "settings" }); break;
+      case "history": go({ name: "history" }); break;
+      case "open": go({ name: "fryer", n: n }); break;
+      case "cycle": go({ name: "cycle", id: el.getAttribute("data-id"), from: view }); break;
+      case "back": go(view.from || { name: "history" }); break;
+      case "unlock": unlockAudio(); break;
+      case "test": testAlarm(); break;
+      case "pick": {
+        var pos = +el.getAttribute("data-pos");
+        pickFlavor(SLOTS[pos], fr(n).draft[pos], function (id) { setDraft(n, pos, id); render(); });
+        break;
+      }
+      case "clear": clearDraft(n); render(); break;
+      case "dur": setDuration(n, fr(n).duration + (+el.getAttribute("data-d"))); render(); break;
+      case "start": {
+        if (el.disabled) return;
+        el.disabled = true;
+        var r = start(n);
+        if (r === "vide") toast("Le panier est vide.");
+        else if (r === "deja") toast("Une cuisson est déjà en cours sur cette friteuse.");
+        render();
+        break;
+      }
+      case "fixask":
+        confirmBox("Corriger la disposition pendant la cuisson ?", "Chaque changement sera noté dans l'historique du cycle.", "Oui, corriger", function () { ui.correcting[n] = true; render(); });
+        break;
+      case "fixdone": ui.correcting[n] = false; render(); break;
+      case "fix": {
+        var p2 = +el.getAttribute("data-pos"), c = findCycle(fr(n).active); if (!c) break;
+        pickFlavor("Corriger : " + SLOTS[p2], c.slots[p2] && c.slots[p2].flavorId, function (id) { correct(n, p2, id); render(); });
+        break;
+      }
+      case "cancel":
+        confirmBox("Annuler la cuisson de la Friteuse " + n + " ?", "Le cycle restera dans l'historique comme « Annulé ». Pense à arrêter le minuteur Siri.", "Annuler la cuisson", function () { cancelCycle(n); render(); }, true);
+        break;
+      case "removed":
+        confirmBox("Le panier de la Friteuse " + n + " est retiré ?", "", "Oui, panier retiré", function () { confirmRemoved(n); render(); });
+        break;
+      case "new": newCycle(n); render(); break;
+      case "redo": redoSame(n); render(); break;
+      case "silence": stopRinging(); break;
+      case "silenceopen": stopRinging(); go({ name: "fryer", n: n }); break;
+      case "hf": ui.histFryer = +el.getAttribute("data-v"); render(); break;
+      case "hall": ui.histAll = !ui.histAll; render(); break;
+      case "htoday": ui.histAll = false; ui.histDay = dayKey(now()); render(); break;
+      case "fadd": flavorEditor(null); break;
+      case "fedit": flavorEditor(flavor(el.getAttribute("data-id"))); break;
+      case "farch": setArchived(el.getAttribute("data-id"), true); render(); break;
+      case "funarch": setArchived(el.getAttribute("data-id"), false); render(); break;
+      case "export": doExport(); break;
+      case "copyexp": {
+        var ta = document.getElementById("exp");
+        var done = function () { toast("Texte copié. Colle-le dans Notes ou un mail pour le garder."); };
+        try { navigator.clipboard.writeText(ui.exportText).then(done, function () { ta.select(); toast("Sélectionne le texte puis Copier."); }); }
+        catch (err) { ta.select(); }
+        break;
+      }
+      case "imptext": askRestore(document.getElementById("imptext").value); break;
+    }
+  });
+
+  document.addEventListener("change", function (e) {
+    var el = e.target, ch = el.getAttribute && el.getAttribute("data-ch"); if (!ch) return;
+    var n = +el.getAttribute("data-n");
+    if (ch === "min") { var m = +el.value, s = m >= 20 ? 0 : fr(n).duration % 60; setDuration(n, m * 60 + s); render(); }
+    else if (ch === "sec") { setDuration(n, Math.floor(fr(n).duration / 60) * 60 + (+el.value)); render(); }
+    else if (ch === "hday") { if (el.value) { ui.histDay = el.value; render(); } }
+    else if (ch === "impfile") {
+      var file = el.files && el.files[0]; if (!file) return;
+      var rd = new FileReader();
+      rd.onload = function () { askRestore(String(rd.result)); };
+      rd.onerror = function () { toast("Lecture du fichier impossible."); };
+      rd.readAsText(file);
+    }
+  });
+
+  function askRestore(text) {
+    if (!text || !text.trim()) { toast("Aucune sauvegarde à restaurer."); return; }
+    confirmBox("Remplacer toutes les données par cette sauvegarde ?", "Exporte d'abord l'état actuel si tu veux le garder.", "Restaurer", function () {
+      try { restoreJSON(text); toast("Sauvegarde restaurée."); go({ name: "home" }); }
+      catch (err) { toast(err.message); }
+    }, true);
+  }
+
+  function exportReminder() {
+    var last = 0; try { last = +localStorage.getItem("pdo-last-export") || 0; } catch (e) {}
+    var days = last ? Math.floor((now() - last) / 86400000) : -1;
+    if (days < 0) return '<span class="ko">Aucune sauvegarde exportée (Réglages)</span>';
+    return days > 7 ? '<span class="ko">Dernière sauvegarde exportée il y a ' + days + ' jours</span>' : '<span class="ok">✓ Sauvegarde exportée le ' + fmtShortDay(last) + "</span>";
+  }
+  function markExported() { try { localStorage.setItem("pdo-last-export", String(now())); } catch (e) {} }
+  function doExport() {
+    var text = exportJSON(), d = new Date(now());
+    var name = "arancini-sauvegarde-" + dayKey(d.getTime()) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + ".json";
+    ui.exportText = text;
+    var fallback = function () { render(); toast("Copie le texte affiché et garde-le dans Notes ou Fichiers."); };
+    if (!window.claude || !window.claude.use) {
+      // Hors de claude.ai : feuille de partage iOS (Enregistrer dans Fichiers), sinon téléchargement.
+      try {
+        var file = new File([text], name, { type: "application/json" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: "Sauvegarde Cuissons" }).then(function () { markExported(); render(); toast("Sauvegarde exportée."); }, function () { render(); });
+          return;
+        }
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([text], { type: "application/json" })); a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        markExported(); render(); toast("Sauvegarde téléchargée.");
+        return;
+      } catch (err) { fallback(); return; }
+    }
+    window.claude.use("downloads").then(function (dl) {
+      if (!dl) { fallback(); return; }
+      return dl.save({ filename: name, data: text }).then(function () { markExported(); render(); toast("Sauvegarde exportée."); }, fallback);
+    }).catch(fallback);
+  }
+
+  // ---------- Horloge de la page ----------
+  function tick() {
+    var done = refreshFinished();
+    if (done.length) { render(); return; }
+    Array.prototype.forEach.call(document.querySelectorAll("[data-remaining]"), function (el) {
+      var c = findCycle(el.getAttribute("data-remaining")); if (c) el.textContent = fmtCountdown(remaining(c));
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-elapsed]"), function (el) {
+      var c = findCycle(el.getAttribute("data-elapsed")); if (c) el.textContent = fmtElapsed(sinceEnd(c));
+    });
+    if (view.name === "home" || view.name === "fryer") {
+      // la carte passe de « en cours » à « prête » au moment exact
+      [1, 2].forEach(function (n) { var p = phase(n); if (p.kind === "ready" && p.cycle.status === "en_cours") render(); });
+    }
+  }
+  setInterval(tick, 1000);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") { refreshFinished(); render(); if (audioCtx && audioCtx.state !== "running") { try { audioCtx.resume(); } catch (e) {} } }
+  });
+  window.addEventListener("storage", function (e) { if (e.key === LS_KEY) { var s = loadLocal(); if (s) { state = s; render(); } } });
+
+  // Accès pour les tests automatisés (décalage d'horloge uniquement).
+  window.__pdo = {
+    advance: function (ms) { clockOffset += ms; tick(); },
+    state: function () { return JSON.parse(JSON.stringify(state)); },
+    go: go
+  };
+
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  if (window.PDO_STANDALONE && "serviceWorker" in navigator) {
+    try { navigator.serviceWorker.register("sw.js"); } catch (e) {}
+  }
+  refreshFinished(true);
+  render();
+  if (window.PDO_STANDALONE) { cloud = "none"; paintStatus(); } else connectCloud();
+})();
+</script>
